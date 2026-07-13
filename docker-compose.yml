@@ -1,0 +1,48 @@
+services:
+  postgres:
+    image: postgres:16
+
+    container_name: erp-postgres
+
+    environment:
+        POSTGRES_DB: erpdb
+        POSTGRES_USER: erpuser
+        POSTGRES_PASSWORD: erp123
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ../erp_backend
+
+    container_name: erp-backend
+
+    ports:
+      - "8081:8080"
+
+    depends_on:
+      - postgres
+
+    environment:
+        SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/erpdb
+        SPRING_DATASOURCE_USERNAME: erpuser
+        SPRING_DATASOURCE_PASSWORD: erp123
+
+  frontend:
+    build: 
+      context: ../erp-frontend
+
+    container_name: erp-frontend
+
+    ports:
+      - "4200:80"
+    
+    depends_on:
+      - backend
+
+  volumes:
+    postgres_data
